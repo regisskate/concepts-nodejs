@@ -30,21 +30,59 @@ app.post("/repositories", (request, response) => {
 });
 
 app.put("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+  const { title, url, techs } = request.body;
+
+  const findRepositoryIndex = repositories.findIndex(repository =>
+    repository.id == id
+  );
+
+  if (findRepositoryIndex == -1) {
+    return response.status(400).json({ error: 'Repository does not exists. ' });
+  };
+  
+  const repository = {
+    id,
+    title,
+    url,
+    techs,
+    likes: repositories[findRepositoryIndex].likes,
+  };
+
+  repositories[findRepositoryIndex] = repository
+
+  return response.json(repository);
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex(repository =>
+    repository.id === id
+  );
+
+  if (repositoryIndex < 0)
+    return response.status(400).json({ error: "Repository not found." });
+
+  repositories.splice(repositoryIndex, 1);
+
+  return response.status(204).send();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
   const { id } = request.params;
 
-  const repository = repositories.find(repository => repository.id == id);
+  const findRepositoryIndex = repositories.findIndex(repository =>
+    repository.id == id
+  );
 
-  repository.likes += 1;
+  if (findRepositoryIndex == -1) {
+    return response.status(400).json({ error: 'repository does not exists.' });
+  }
 
-  return response.json(repository);
+  repositories[findRepositoryIndex].likes += 1;
+
+  return response.json(repositories[findRepositoryIndex]);
 });
 
 module.exports = app;
